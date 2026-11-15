@@ -28,19 +28,11 @@
       "file": "chapters/04.md",
       "title": "Про ветеринара и достоинство",
       "date": "2026-11-15",
-      "words": 0,
-      "readMinutes": 1,
-      "illustration": "assets/chapter-04.png"
-    },
-    {
-      "file": "chapters/05.md",
-      "title": "Про детские рисунки на холодильнике",
-      "date": "2026-11-15",
-      "words": 841,
+      "words": 722,
       "readMinutes": 5,
-      "illustration": "assets/chapter-05.png"
+      "illustration": "assets/chapter-04.png"
     }
   ],
-  "totalWords": 3104,
-  "totalReadMinutes": 20
+  "totalWords": 2985,
+  "totalReadMinutes": 19
 }
