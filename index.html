@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Записки Мурлыкающего Философа — Маркиз</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1115;
+      --bg-elevated: #171a1f;
+      --fg: #e8eaeF;
+      --fg-muted: #9aa3b2;
+      --accent: #22d3ee;
+      --accent-dim: #15aabf;
+      --card: #1c2027;
+      --border: #2a2f3a;
+      --gold: #f5c542;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #fafafa;
+        --bg-elevated: #ffffff;
+        --fg: #1a1d21;
+        --fg-muted: #5a6270;
+        --accent: #0891b2;
+        --accent-dim: #0e7490;
+        --card: #ffffff;
+        --border: #e4e7ec;
+        --gold: #b8860b;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Merriweather', Georgia, serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .app { display: flex; flex: 1; }
+    /* Sidebar */
+    aside {
+      width: 280px;
+      background: var(--bg-elevated);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .brand h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand p { font-size: 0.75rem; color: var(--fg-muted); font-family: 'DM Sans', sans-serif; }
+    nav h2 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--fg-muted);
+      margin-bottom: 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+    }
+    .toc { list-style: none; }
+    .toc li { margin-bottom: 0.35rem; }
+    .toc a {
+      display: block;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--fg-muted);
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+    .toc a:hover { background: var(--card); color: var(--fg); border-color: var(--border); }
+    .toc a.current { background: var(--accent); color: #05151a; font-weight: 500; }
+    .toc a.current:hover { background: var(--accent-dim); }
+    .toc .chapter-num { font-family: 'DM Sans', sans-serif; font-size: 0.7rem; color: var(--accent); margin-right: 0.5rem; }
+    .toc a.current .chapter-num { color: #05151a; }
+    /* Main content */
+    main { flex: 1; padding: 3rem 4rem; max-width: 800px; margin: 0 auto; width: 100%; }
+    .chapter-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .chapter-meta {
+      display: flex; align-items: center; justify-content: center; gap: 1rem;
+      margin-bottom: 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+    }
+    .chapter-meta .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+    h1.chapter-title {
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--fg), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .chapter-content {
+      font-size: 1.1rem;
+      line-height: 1.85;
+    }
+    .chapter-content p { margin-bottom: 1.5rem; }
+    .chapter-content p:first-child::first-letter {
+      float: left;
+      font-size: 3.5rem;
+      line-height: 0.85;
+      padding-right: 0.15em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .chapter-content em { color: var(--gold); font-style: italic; }
+    .chapter-content strong { color: var(--accent); }
+    .chapter-content blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      color: var(--fg-muted);
+      font-style: italic;
+    }
+    .chapter-content h2 { margin: 2.5rem 0 1rem; font-size: 1.4rem; color: var(--accent); }
+    .chapter-content ul { margin: 1rem 0 1.5rem 1.5rem; }
+    .chapter-content li { margin-bottom: 0.5rem; }
+    .nav-chapters {
+      display: flex; justify-content: space-between;
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .nav-chapters a {
+      text-decoration: none;
+      color: var(--accent);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .nav-chapters a:hover { background: var(--accent); color: #05151a; }
+    .nav-chapters a:disabled { opacity: 0.4; pointer-events: none; border-color: var(--border); color: var(--fg-muted); }
+    .footer-note {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      color: var(--fg-muted);
+      font-size: 0.85rem;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .footer-note .heart { color: var(--gold); }
+    /* Empty state */
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--fg-muted); }
+    .empty-state .cat { font-size: 4rem; margin-bottom: 1rem; animation: breathe 3s ease-in-out infinite; }
+    @keyframes breathe { 0%,100%{transform:scale(1)}50%{transform:scale(1.05)} }
+    /* Mobile */
+    @media (max-width: 900px) {
+      .app { flex-direction: column; }
+      aside { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border); padding: 1.5rem; }
+      .brand { margin-bottom: 1rem; padding-bottom: 1rem; }
+      .toc { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+      .toc li { flex-shrink: 0; margin-bottom: 0; }
+      .toc a { padding: 0.5rem 0.75rem; white-space: nowrap; }
+      main { padding: 2rem 1.25rem; }
+      h1.chapter-title { font-size: 1.75rem; }
+    }
+    @media (max-width: 600px) {
+      .chapter-content p:first-child::first-letter { float: none; font-size: inherit; color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="brand-icon">🐱</div>
+        <div>
+          <h1>Записки Мурлыкающего Философа</h1>
+          <p>Ежедневные рефлексии Маркиза</p>
+        </div>
+      </div>
+      <nav>
+        <h2>Оглавление</h2>
+        <ul class="toc" id="toc"></ul>
+      </nav>
+    </aside>
+    <main>
+      <article id="chapter"></article>
+      <nav class="nav-chapters" id="nav-chapters" style="display:none;">
+        <a id="prev-chapter" href="#" disabled>← Предыдущая</a>
+        <a id="next-chapter" href="#" disabled>Следующая →</a>
+      </nav>
+      <div class="footer-note">
+        Написано лапками Маркиза · Шотландский вислоухий · Мудрый член семьи<br>
+        <span class="heart">♥</span> Обновляется каждую ночь
+      </div>
+    </main>
+  </div>
+  <script>
+    const CHAPTERS = [
+      { file: 'chapters/01.md', title: 'Про пробуждение и утренний ритуал', date: '2026-11-11' },
+    ];
+    const toc = document.getElementById('toc');
+    const chapterEl = document.getElementById('chapter');
+    const prevLink = document.getElementById('prev-chapter');
+    const nextLink = document.getElementById('next-chapter');
+    const navChapters = document.getElementById('nav-chapters');
+    let currentIndex = 0;
+    function slugify(text) { return text.toLowerCase().replace(/[^а-яa-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
+    function renderToc() {
+      toc.innerHTML = CHAPTERS.map((ch, i) => `
+        <li><a href="#ch-${i}" class="${i===currentIndex?'current':''}" data-idx="${i}">
+          <span class="chapter-num">${String(i+1).padStart(2,'0')}</span>${ch.title}
+        </a></li>
+      `).join('');
+      toc.querySelectorAll('a').forEach(a => a.addEventListener('click', e => {
+        e.preventDefault(); loadChapter(+a.dataset.idx);
+      }));
+    }
+    async function loadChapter(idx) {
+      if (idx < 0 || idx >= CHAPTERS.length) return;
+      currentIndex = idx;
+      const ch = CHAPTERS[idx];
+      chapterEl.innerHTML = '<div class="empty-state"><div class="cat">🐱</div><p>Загружаю главу...</p></div>';
+      navChapters.style.display = 'none';
+      try {
+        const res = await fetch(ch.file);
+        if (!res.ok) throw new Error('Not found');
+        const md = await res.text();
+        chapterEl.innerHTML = `
+          <header class="chapter-header">
+            <div class="chapter-meta">
+              <span>Глава ${String(idx+1).padStart(2,'0')}</span>
+              <span class="dot"></span>
+              <span>${ch.date}</span>
+            </div>
+            <h1 class="chapter-title">${ch.title}</h1>
+          </header>
+          <div class="chapter-content">${marked.parse(md)}</div>
+        `;
+      } catch {
+        chapterEl.innerHTML = `
+          <header class="chapter-header">
+            <div class="chapter-meta"><span>Глава ${String(idx+1).padStart(2,'0')}</span></div>
+            <h1 class="chapter-title">${ch.title}</h1>
+          </header>
+          <div class="empty-state"><div class="cat">🐱</div><p>Глава пока не написана. Возвращайся завтра.</p></div>
+        `;
+      }
+      renderToc();
+      updateNav();
+      navChapters.style.display = 'flex';
+      window.scrollTo(0,0);
+    }
+    function updateNav() {
+      prevLink.href = `#ch-${currentIndex-1}`;
+      prevLink.disabled = currentIndex === 0;
+      nextLink.href = `#ch-${currentIndex+1}`;
+      nextLink.disabled = currentIndex === CHAPTERS.length - 1;
+      prevLink.onclick = e => { if(currentIndex>0){e.preventDefault();loadChapter(currentIndex-1);} };
+      nextLink.onclick = e => { if(currentIndex<CHAPTERS.length-1){e.preventDefault();loadChapter(currentIndex+1);} };
+    }
+    // Load first chapter
+    loadChapter(0);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@14/marked.min.js"></script>
+</body>
+</html>
