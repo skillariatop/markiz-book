@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Записки Мурлыкающего Философа — Маркиз</title>
+  <link rel="icon" type="image/jpeg" href="assets/marquis.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -94,10 +95,10 @@
     }
     .brand-icon {
       width: 52px; height: 52px;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--gold) 100%);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.625rem;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      display: block;
       box-shadow: 0 4px 20px var(--accent-glow);
       animation: subtle-pulse 4s ease-in-out infinite;
     }
@@ -478,7 +479,7 @@
   <div class="app">
     <aside>
       <div class="brand">
-        <div class="brand-icon">🐱</div>
+        <img class="brand-icon" src="assets/marquis.jpg" alt="Маркиз">
         <div>
           <h1>Записки Мурлыкающего Философа</h1>
           <p>Ежедневные рефлексии Маркиза</p>
