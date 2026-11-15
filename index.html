@@ -356,6 +356,18 @@
       margin: 1.5rem 0;
     }
     .chapter-content pre code { background: none; padding: 0; color: var(--fg); font-size: 0.875rem; }
+    .chapter-illustration {
+      margin: 0 auto 2.5rem;
+      max-width: 640px;
+      text-align: center;
+    }
+    .chapter-illustration img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 40px var(--shadow);
+    }
 
     /* Reading progress */
     .reading-progress {
@@ -650,6 +662,9 @@
         // Убираем первый H1-заголовок из markdown — он уже отрисован в шапке главы
         const md = (await res.text()).replace(/^\s*#\s+[^\r\n]*(\r?\n|$)/, '');
         const html = marked.parse(md);
+        const illustration = ch.illustration
+          ? `<figure class="chapter-illustration"><img src="${escapeHtml(ch.illustration)}" alt="Иллюстрация к главе"></figure>`
+          : '';
         chapterEl.innerHTML = `
           <header class="chapter-header">
             <div class="chapter-meta">
@@ -660,6 +675,7 @@
             </div>
             <h1 class="chapter-title">${escapeHtml(ch.title)}</h1>
           </header>
+          ${illustration}
           <div class="chapter-content">${html}</div>
         `;
       } catch (e) {

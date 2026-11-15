@@ -5,7 +5,8 @@
       "title": "Про пробуждение и утренний ритуал",
       "date": "2026-11-15",
       "words": 621,
-      "readMinutes": 4
+      "readMinutes": 4,
+      "illustration": "assets/chapter-01.png"
     },
     {
       "file": "chapters/02.md",
