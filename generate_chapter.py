@@ -62,6 +62,58 @@ CHAPTER_THEMES = [
     ("Про новогоднюю ёлку и опасность", "tree"),
 ]
 
+# Реальный контекст дня (Краснодар)
+KRASNODAR_LAT, KRASNODAR_LON = 45.0355, 38.9753
+WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
+WEEKDAYS = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
+WEATHER_CODES = {
+    0: "ясно", 1: "малооблачно", 2: "переменная облачность", 3: "пасмурно",
+    45: "туман", 48: "изморось",
+    51: "лёгкая морось", 53: "морось", 55: "сильная морось",
+    61: "небольшой дождь", 63: "дождь", 65: "сильный дождь",
+    71: "небольшой снег", 73: "снег", 75: "сильный снег",
+    80: "небольшой ливень", 81: "ливень", 82: "сильный ливень",
+    95: "гроза", 96: "гроза с градом", 99: "гроза с сильным градом",
+}
+
+
+def fetch_weather():
+    """Погода в Краснодаре (Open-Meteo, без ключа)."""
+    try:
+        r = requests.get(
+            WEATHER_URL,
+            params={
+                "latitude": KRASNODAR_LAT,
+                "longitude": KRASNODAR_LON,
+                "current": "temperature_2m,weather_code,wind_speed_10m",
+                "daily": "temperature_2m_max,temperature_2m_min",
+                "timezone": "Europe/Moscow",
+                "forecast_days": 1,
+                "wind_speed_unit": "ms",
+            },
+            timeout=20,
+        )
+        r.raise_for_status()
+        d = r.json()
+        cur = d.get("current", {})
+        daily = d.get("daily", {})
+        temp = cur.get("temperature_2m")
+        code = cur.get("weather_code")
+        desc = WEATHER_CODES.get(code, "облачно")
+        tmax = daily.get("temperature_2m_max", [None])[0]
+        tmin = daily.get("temperature_2m_min", [None])[0]
+        wind = cur.get("wind_speed_10m")
+        parts = [f"сейчас {temp}°C, {desc}"]
+        if tmax is not None and tmin is not None:
+            parts.append(f"днём до {tmax:.0f}°C, ночью около {tmin:.0f}°C")
+        if wind is not None:
+            parts.append(f"ветер {wind:.0f} м/с")
+        return " ".join(parts)
+    except Exception as e:
+        print(f"[погода] не получена: {e}")
+        return ""
+
+
 LORE_GUIDE = """Пиши от лица Маркиза — шотландского вислоухого кота, 5 лет. Умный, ироничный, наблюдательный, тёплый.
 Жанр: уютная философская проза (cozy fiction), лёгкий юмор.
 Тон: тёплый, немного мудрый, без пафоса и нравоучений.
@@ -135,14 +187,21 @@ def read_minutes(words, wpm=180):
 def generate_draft(number, theme_title):
     """1-й прогон: черновик главы."""
     continuity = load_continuity()
-    today = datetime.now().strftime("%Y-%m-%d")
+    now = datetime.now()
+    today = now.strftime("%Y-%m-%d")
+    dow = WEEKDAYS[now.weekday()]
+    weather = fetch_weather()
+
+    ctx = f"Дата: {today} ({dow})."
+    if weather:
+        ctx += f"\nПогода в Краснодаре: {weather}."
 
     user_prompt = f"""Напиши главу {number} книги «Записки Мурлыкающего Философа».
 
 {LORE_GUIDE}
 
 Тема главы: «{theme_title}».
-Дата: {today}.
+{ctx}
 
 ВНИМАНИЕ — непрерывность сюжета (текущее состояние книги):
 {continuity}
@@ -151,6 +210,7 @@ def generate_draft(number, theme_title):
 - Не повторяй темы, метафоры и сцены из уже написанных глав (см. выше).
 - Не меняй установленные факты и имена.
 - Если вводишь новый факт/имя — только один, аккуратно.
+- Аккуратно вплети реальный контекст дня в рассказ, если это уместно: дождь за окном, солнце на подоконнике, вечерняя прохлада, выходной день. Одной-двух живых деталей достаточно — не делай погоду темой главы.
 - Текст только на русском, без англицизмов и ляпов согласования («моя человек» — ошибка)."""
 
     return call_llm(
