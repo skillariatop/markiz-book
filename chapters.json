@@ -12,7 +12,7 @@
       "file": "chapters/02.md",
       "title": "Про коробки и невидимые границы",
       "date": "2026-11-15",
-      "words": 423,
+      "words": 424,
       "readMinutes": 3,
       "illustration": "assets/chapter-02.png"
     },
@@ -20,11 +20,11 @@
       "file": "chapters/03.md",
       "title": "Про птиц за окном и справедливость",
       "date": "2026-11-15",
-      "words": 319,
-      "readMinutes": 2,
+      "words": 736,
+      "readMinutes": 5,
       "illustration": "assets/chapter-03.png"
     }
   ],
-  "totalWords": 1363,
-  "totalReadMinutes": 9
+  "totalWords": 1781,
+  "totalReadMinutes": 12
 }
