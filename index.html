@@ -644,7 +644,8 @@
       try {
         const res = await fetch(ch.file);
         if (!res.ok) throw new Error('Not found');
-        const md = await res.text();
+        // Убираем первый H1-заголовок из markdown — он уже отрисован в шапке главы
+        const md = (await res.text()).replace(/^\s*#\s+[^\r\n]*(\r?\n|$)/, '');
         const html = marked.parse(md);
         chapterEl.innerHTML = `
           <header class="chapter-header">
