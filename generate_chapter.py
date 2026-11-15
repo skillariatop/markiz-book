@@ -13,6 +13,7 @@
 import os
 import re
 import json
+import base64
 import requests
 from datetime import datetime
 from pathlib import Path
@@ -65,6 +66,8 @@ CHAPTER_THEMES = [
 # Реальный контекст дня (Краснодар)
 KRASNODAR_LAT, KRASNODAR_LON = 45.0355, 38.9753
 WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
+IMAGES_URL = "http://127.0.0.1:4000/v1/images/generations"
+IMAGE_MODEL = "modelscope/qwen-image-2512"
 WEEKDAYS = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
 WEATHER_CODES = {
     0: "ясно", 1: "малооблачно", 2: "переменная облачность", 3: "пасмурно",
@@ -112,6 +115,41 @@ def fetch_weather():
     except Exception as e:
         print(f"[погода] не получена: {e}")
         return ""
+
+
+def generate_illustration(number, theme_title):
+    """Генерирует иллюстрацию к главе (image-модель), возвращает путь к PNG."""
+    try:
+        prompt = (
+            "Cozy watercolor children's book illustration, warm pastel colors, soft light, "
+            "no text, no watermark: a grey Scottish Fold cat with folded ears in a warm, calm "
+            f"home scene, gentle philosophical mood. Chapter theme: {theme_title}"
+        )
+        headers = {"Content-Type": "application/json"}
+        if ROUTER_KEY:
+            headers["Authorization"] = f"Bearer {ROUTER_KEY}"
+        r = requests.post(
+            IMAGES_URL,
+            headers=headers,
+            json={"model": IMAGE_MODEL, "prompt": prompt, "n": 1, "size": "1024x1024"},
+            timeout=540,
+        )
+        r.raise_for_status()
+        item = (r.json().get("data") or [{}])[0]
+        raw = None
+        if "b64_json" in item:
+            raw = base64.b64decode(item["b64_json"])
+        elif item.get("url"):
+            raw = requests.get(item["url"], timeout=120).content
+        if raw:
+            assets = REPO_ROOT / "assets"
+            assets.mkdir(parents=True, exist_ok=True)
+            img_path = assets / f"chapter-{number:02d}.png"
+            img_path.write_bytes(raw)
+            return f"assets/chapter-{number:02d}.png"
+    except Exception as e:
+        print(f"[иллюстрация] ошибка: {e}")
+    return None
 
 
 LORE_GUIDE = """Пиши от лица Маркиза — шотландского вислоухого кота, 5 лет. Умный, ироничный, наблюдательный, тёплый.
@@ -299,18 +337,27 @@ def main():
     filepath.write_text(final + "\n", encoding="utf-8")
     wc = count_words(final)
     rm = read_minutes(wc)
-    print(f"[3/4] Сохранено: {filename} ({len(final)} символов, ~{rm} мин чтения)")
+    print(f"[3/5] Сохранено: {filename} ({len(final)} символов, ~{rm} мин чтения)")
 
-    # 4. Обновляем манифест и непрерывность
-    manifest["chapters"].append(
-        {
-            "file": f"chapters/{filename}",
-            "title": theme_title,
-            "date": today,
-            "words": wc,
-            "readMinutes": rm,
-        }
-    )
+    # 4. Иллюстрация
+    print("[4/5] Генерирую иллюстрацию...")
+    illustration = generate_illustration(next_num, theme_title)
+    if illustration:
+        print(f"  иллюстрация: {illustration}")
+    else:
+        print("  иллюстрация не получена — продолжаю без неё")
+
+    # 5. Обновляем манифест и непрерывность
+    new_chapter = {
+        "file": f"chapters/{filename}",
+        "title": theme_title,
+        "date": today,
+        "words": wc,
+        "readMinutes": rm,
+    }
+    if illustration:
+        new_chapter["illustration"] = illustration
+    manifest["chapters"].append(new_chapter)
     manifest["totalWords"] = sum(ch["words"] for ch in manifest["chapters"])
     manifest["totalReadMinutes"] = sum(
         ch["readMinutes"] for ch in manifest["chapters"]
@@ -320,11 +367,14 @@ def main():
     continuity = load_continuity()
     continuity = update_continuity(continuity, next_num, theme_title)
     save_continuity(continuity)
-    print("[4/4] chapters.json и continuity.md обновлены")
+    print("[5/5] chapters.json и continuity.md обновлены")
 
     # Git
     os.chdir(REPO_ROOT)
-    os.system(f"git add chapters/{filename} chapters.json continuity.md")
+    git_add = f"git add chapters/{filename} chapters.json continuity.md"
+    if illustration:
+        git_add += f" assets/chapter-{next_num:02d}.png"
+    os.system(git_add)
     os.system(f'git commit -m "feat: глава {next_num} — {theme_title}"')
     os.system("git push")
     print("Запушено в GitHub")
