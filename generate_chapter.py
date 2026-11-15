@@ -2,19 +2,28 @@
 """
 Генератор глав для «Записок Мурлыкающего Философа».
 Запускается ежедневно кроном. Создаёт новую главу в chapters/NN.md
-и обновляет index.html (добавляет запись в CHAPTERS).
+и обновляет chapters.json (манифест глав).
 """
 import os
 import re
 import json
-from datetime import datetime, timedelta
+import requests
+from datetime import datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent
 CHAPTERS_DIR = REPO_ROOT / "chapters"
-INDEX_FILE = REPO_ROOT / "index.html"
+MANIFEST_FILE = REPO_ROOT / "chapters.json"
 
-# Темы для глав (циклически или рандомно)
+# Hermes Router API
+ROUTER_URL = "http://127.0.0.2:4000/v1/chat/completions"
+# Используем smart-auto — роутер сам выберет strong/code тир
+MODEL = "smart-auto"
+
+# API ключ для роутера (из .env)
+ROUTER_KEY = os.environ.get("HERMES_CUSTOM_127_0_0_1_4000_API_KEY", "")
+
+# Темы для глав
 CHAPTER_THEMES = [
     ("Про пробуждение и утренний ритуал", "morning"),
     ("Про коробки и невидимые границы", "boxes"),
@@ -49,29 +58,65 @@ CHAPTER_THEMES = [
     ("Про рождественскую ёлку и опасность", "tree"),
 ]
 
-def get_existing_chapters():
-    """Считывает существующие главы из index.html"""
-    if not INDEX_FILE.exists():
-        return []
-    content = INDEX_FILE.read_text(encoding='utf-8')
-    # Ищем массив CHAPTERS = [...]
-    match = re.search(r'const CHAPTERS\s*=\s*(\[[\s\S]*?\]);', content)
-    if not match:
-        return []
+def load_manifest():
+    """Загружает манифест глав из chapters.json"""
+    if not MANIFEST_FILE.exists():
+        return {"chapters": [], "totalWords": 0}
     try:
-        return json.loads(match.group(1))
+        return json.loads(MANIFEST_FILE.read_text(encoding='utf-8'))
     except json.JSONDecodeError:
-        return []
+        return {"chapters": [], "totalWords": 0}
 
-def get_next_chapter_number(existing):
-    return len(existing) + 1
+def save_manifest(manifest):
+    """Сохраняет манифест глав"""
+    MANIFEST_FILE.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2),
+        encoding='utf-8'
+    )
+
+def count_words(text):
+    """Подсчёт слов в тексте (без markdown-разметки)"""
+    text = re.sub(r'[#>*`\[\]()]', '', text)
+    text = re.sub(r'\s+', ' ', text)
+    return len(text.split())
+
+def get_next_chapter_number(manifest):
+    return len(manifest["chapters"]) + 1
+
+def call_llm(prompt: str, max_tokens: int = 3000) -> str:
+    """Вызывает Hermes Router API для генерации главы."""
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {ROUTER_KEY}"
+    }
+    payload = {
+        "model": MODEL,
+        "messages": [
+            {
+                "role": "system",
+                "content": "Ты — Маркиз, шотландский вислоухий кот, 5 лет. Мудрый, ироничный, наблюдательный, тёплый. Пишешь от первого лица кота. Тон: уютный, философский, слегка юмористический (cozy fiction). Язык: ТОЛЬКО русский. Английские слова — только общепринятые термины/аббревиатуры/бренды."
+            },
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": max_tokens,
+        "temperature": 0.8,
+        "stream": False
+    }
+    try:
+        resp = requests.post(ROUTER_URL, headers=headers, json=payload, timeout=180)
+        resp.raise_for_status()
+        data = resp.json()
+        return data["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        print(f"Ошибка вызова LLM: {e}")
+        if hasattr(e, 'response') and e.response is not None:
+            print(f"Response: {e.response.text}")
+        raise
 
 def generate_chapter_content(number, theme_title, theme_key):
-    """Генерирует markdown главы через LLM (здесь — шаблон для примера).
-    В продакшене здесь будет вызов Hermes API."""
+    """Генерирует markdown главы через LLM."""
     today = datetime.now().strftime('%Y-%m-%d')
     
-    # Промпт для генерации
     prompt = f"""Напиши главу {number} книги "Записки Мурлыкающего Философа".
 
 Персонаж: Маркиз — шотландский вислоухий кот, 5 лет, мудрый, ироничный, наблюдательный.
@@ -87,58 +132,15 @@ def generate_chapter_content(number, theme_title, theme_key):
 - Кошачья логика + человеческая мудрость
 - В конце — P.S. с кошачьим советом
 - 1500-2500 символов
-- Только markdown, без лишнего текста"""
+- Только markdown, без лишнего текста
+- ТОЛЬКО на русском языке"""
 
-    # Для демо вернём заглушку; в продакшене заменить на вызов API
-    return f"""# Глава {number}. {theme_title}
-
-*{today}*
-
-Солнце легла на ковер так, будто решила остаться навсегда. Я не возражаю — мои обязанности по контролю солнечных пятен никто не отменял.
-
-***
-
-Сегодня тема — {theme_title.lower()}. Казалось бы, простая вещь. Но в простоте, как в пустой коробке, скрыта вся вселенная.
-
-Моя человек сидит за столом с чашкой остывающего чая. Её пальцы касаются края кружки так же осторожно, будто это не керамика, а чьё-то доверие. Я знаю это чувство. Доверие — как шерсть на животе: гладкая, тёплая, но один неверный коготь — и остаются раны на месяцы.
-
-Муж ушёл рано. Оставил на столе записку: *«Купи молока. Люблю»*. Я нюхнул бумагу — пахнет мужчиной, кофе и тревогой за завтрашний день. Положился на записку. Пусть полежит под моим весом. Иногда ответственность нужно придавить к столу, чтобы не улетела.
-
-Дети в школе. Старший — с контрольной по физике. Младший — с рисунком «моя семья», где я изображен больше папы, но меньше мамы. Справедливо. Я — центр гравитации этого дома. Все вращаются вокруг меня, даже если об этом не знают.
-
-***
-
-Окно слегка приоткрыто. Внутрь залетает запах мокрого асфальта, жареных булок из пекарни на углу и чьей-то чужой тревоги. Птица садится на подоконник. Мы смотрим друг другу в глаза. Она — свобода. Я — выбор.
-
-Я выбираю тёплый пол. Выбираю чашу с водой (свежей, утренней). Выбираю место рядом с ногой моей человека, когда она вечером читает книгу и случайно гладит меня за ухом, не отрываясь от строк.
-
-В этом и есть мудрость: не в охоте на птиц. В том, чтобы знать, за что стоишь. И за кого.
-
-***
-
-P.S. Если солнче легла на твой живот — не вставай. Мир подождёт. Твой мурлыканье — лучший лекарь для всех, кто рядом. Включая тебя самого.
-"""
-
-def update_index_html(existing_chapters, new_chapter):
-    """Обновляет массив CHAPTERS в index.html"""
-    content = INDEX_FILE.read_text(encoding='utf-8')
-    
-    # Формируем новый массив
-    all_chapters = existing_chapters + [new_chapter]
-    new_array = json.dumps(all_chapters, ensure_ascii=False, indent=2)
-    
-    # Заменяем в файле
-    new_content = re.sub(
-        r'const CHAPTERS\s*=\s*\[[\s\S]*?\];',
-        f'const CHAPTERS = {new_array};',
-        content
-    )
-    
-    INDEX_FILE.write_text(new_content, encoding='utf-8')
+    return call_llm(prompt)
 
 def main():
-    existing = get_existing_chapters()
-    next_num = get_next_chapter_number(existing)
+    manifest = load_manifest()
+    existing_chapters = manifest["chapters"]
+    next_num = get_next_chapter_number(manifest)
     
     if next_num > len(CHAPTER_THEMES):
         print(f"Все {len(CHAPTER_THEMES)} тем использованы. Начинаем цикл заново или ждём новые темы.")
@@ -149,25 +151,29 @@ def main():
     filename = f"{next_num:02d}.md"
     filepath = CHAPTERS_DIR / filename
     
-    # Генерируем контент
+    print(f"Генерирую главу {next_num}: {theme_title}...")
     md_content = generate_chapter_content(next_num, theme_title, theme_key)
     
-    # Сохраняем главу
     filepath.write_text(md_content, encoding='utf-8')
-    print(f"Создана глава {next_num}: {filename}")
+    word_count = count_words(md_content)
+    print(f"Создана глава {next_num}: {filename} ({len(md_content)} символов, {word_count} слов)")
     
-    # Обновляем index.html
     new_chapter = {
         "file": f"chapters/{filename}",
         "title": theme_title,
-        "date": today
+        "date": today,
+        "words": word_count
     }
-    update_index_html(existing, new_chapter)
-    print(f"index.html обновлён")
     
-    # Гит коммит
+    # Обновляем манифест
+    manifest["chapters"].append(new_chapter)
+    manifest["totalWords"] = sum(ch.get("words", 0) for ch in manifest["chapters"])
+    save_manifest(manifest)
+    print(f"chapters.json обновлён (всего глав: {len(manifest['chapters'])}, слов: {manifest['totalWords']})")
+    
+    # Git commit & push
     os.chdir(REPO_ROOT)
-    os.system(f'git add chapters/{filename} index.html')
+    os.system(f'git add chapters/{filename} chapters.json')
     os.system(f'git commit -m "feat: глава {next_num} — {theme_title}"')
     os.system('git push')
     print("Запушено в GitHub")
