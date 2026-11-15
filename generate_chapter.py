@@ -127,6 +127,11 @@ def count_words(text):
     return len(t.split())
 
 
+def read_minutes(words, wpm=180):
+    """Примерное время чтения в минутах (скорость ~180 слов/мин)."""
+    return max(1, (words + wpm - 1) // wpm)
+
+
 def generate_draft(number, theme_title):
     """1-й прогон: черновик главы."""
     continuity = load_continuity()
@@ -232,13 +237,23 @@ def main():
     # 3. Сохраняем главу
     filepath.write_text(final + "\n", encoding="utf-8")
     wc = count_words(final)
-    print(f"[3/4] Сохранено: {filename} ({len(final)} символов, {wc} слов)")
+    rm = read_minutes(wc)
+    print(f"[3/4] Сохранено: {filename} ({len(final)} символов, ~{rm} мин чтения)")
 
     # 4. Обновляем манифест и непрерывность
     manifest["chapters"].append(
-        {"file": f"chapters/{filename}", "title": theme_title, "date": today, "words": wc}
+        {
+            "file": f"chapters/{filename}",
+            "title": theme_title,
+            "date": today,
+            "words": wc,
+            "readMinutes": rm,
+        }
     )
     manifest["totalWords"] = sum(ch["words"] for ch in manifest["chapters"])
+    manifest["totalReadMinutes"] = sum(
+        ch["readMinutes"] for ch in manifest["chapters"]
+    )
     save_manifest(manifest)
 
     continuity = load_continuity()
