@@ -31,8 +31,16 @@
       "words": 0,
       "readMinutes": 1,
       "illustration": "assets/chapter-04.png"
+    },
+    {
+      "file": "chapters/05.md",
+      "title": "Про детские рисунки на холодильнике",
+      "date": "2026-11-15",
+      "words": 846,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-05.png"
     }
   ],
-  "totalWords": 2263,
-  "totalReadMinutes": 15
+  "totalWords": 3109,
+  "totalReadMinutes": 20
 }
