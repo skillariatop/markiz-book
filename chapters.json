@@ -23,8 +23,16 @@
       "words": 768,
       "readMinutes": 5,
       "illustration": "assets/chapter-03.png"
+    },
+    {
+      "file": "chapters/04.md",
+      "title": "Про ветеринара и достоинство",
+      "date": "2026-11-15",
+      "words": 613,
+      "readMinutes": 4,
+      "illustration": "assets/chapter-04.png"
     }
   ],
-  "totalWords": 2263,
-  "totalReadMinutes": 14
+  "totalWords": 2876,
+  "totalReadMinutes": 18
 }
