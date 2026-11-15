@@ -13,7 +13,8 @@
       "title": "Про коробки и невидимые границы",
       "date": "2026-11-15",
       "words": 423,
-      "readMinutes": 3
+      "readMinutes": 3,
+      "illustration": "assets/chapter-02.png"
     },
     {
       "file": "chapters/03.md",
