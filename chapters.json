@@ -4,27 +4,27 @@
       "file": "chapters/01.md",
       "title": "Про пробуждение и утренний ритуал",
       "date": "2026-11-15",
-      "words": 621,
-      "readMinutes": 4,
+      "words": 863,
+      "readMinutes": 5,
       "illustration": "assets/chapter-01.png"
     },
     {
       "file": "chapters/02.md",
       "title": "Про коробки и невидимые границы",
       "date": "2026-11-15",
-      "words": 424,
-      "readMinutes": 3,
+      "words": 632,
+      "readMinutes": 4,
       "illustration": "assets/chapter-02.png"
     },
     {
       "file": "chapters/03.md",
       "title": "Про птиц за окном и справедливость",
       "date": "2026-11-15",
-      "words": 736,
+      "words": 768,
       "readMinutes": 5,
       "illustration": "assets/chapter-03.png"
     }
   ],
-  "totalWords": 1781,
-  "totalReadMinutes": 12
+  "totalWords": 2263,
+  "totalReadMinutes": 14
 }
