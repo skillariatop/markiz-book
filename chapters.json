@@ -39,8 +39,16 @@
       "words": 751,
       "readMinutes": 5,
       "illustration": "assets/chapter-05.png"
+    },
+    {
+      "file": "chapters/06.md",
+      "title": "Про дождь и уют",
+      "date": "2026-11-16",
+      "words": 780,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-06.png"
     }
   ],
-  "totalWords": 3736,
-  "totalReadMinutes": 24
+  "totalWords": 4516,
+  "totalReadMinutes": 29
 }
