@@ -14,6 +14,7 @@ import os
 import re
 import json
 import base64
+import time
 import requests
 from datetime import datetime
 from pathlib import Path
@@ -25,7 +26,7 @@ CONTINUITY_FILE = REPO_ROOT / "continuity.md"
 
 # Hermes Router API
 ROUTER_URL = "http://127.0.0.2:4000/v1/chat/completions"
-MODEL = "smart-auto"
+MODEL = "modelscope/deepseek-v4-pro"
 ROUTER_KEY = os.environ.get("HERMES_CUSTOM_127_0_0_1_4000_API_KEY", "")
 
 # Темы для глав. Следующая глава берёт следующий номер из списка.
@@ -119,12 +120,45 @@ def fetch_weather():
 
 def generate_illustration(number, theme_title):
     """Генерирует иллюстрацию к главе (image-модель), возвращает путь к PNG."""
+    # Специфичные промпты для каждой главы — чтобы иллюстрации были уникальны и символичны
+    chapter_prompts = {
+        1: "Cozy watercolor illustration, warm pastel colors, soft morning light: a grey Scottish Fold cat stretching on a sunny windowsill, steaming tea cup nearby, half-open curtains, peaceful home atmosphere. Symbolic: morning ritual, beginning.",
+        2: "Cozy watercolor illustration, warm pastel colors: a grey Scottish Fold cat sitting inside a cardboard box, only ears and tail visible, the box has a drawn 'door' and 'window', magical cozy feeling. Symbolic: boxes as safe spaces, invisible boundaries.",
+        3: "Cozy watercolor illustration, soft diffused light: a grey Scottish Fold cat on a windowsill watching birds outside through rain-speckled glass, a crow on a birch branch in background, philosophical mood. Symbolic: observation, justice, birds sharing a branch.",
+        4: "Cozy watercolor illustration, warm clinical light: a grey Scottish Fold cat sitting calmly on a vet examination table, a kind veterinarian's hands gently checking ears, owner's reassuring hand on cat's back, stethoscope, medicine bottles blurred in background. Symbolic: dignity, trust, vulnerability as strength.",
+        5: "Cozy watercolor illustration, warm kitchen evening light: a grey Scottish Fold cat on kitchen floor looking up at refrigerator door covered in children's drawings — a colorful crow drawing with rainbow feathers prominent, family photo, magnets. Symbolic: children's art, family gallery, love displayed.",
+        6: "Cozy watercolor illustration, soft grey-blue tones: a grey Scottish Fold cat watching rain through window, raindrops tracing paths on glass, cozy blanket, steaming mug reflection. Symbolic: rain, coziness, contemplation.",
+        7: "Cozy watercolor illustration, warm evening light: a grey Scottish Fold cat observing two humans making up after a small quarrel, a knocked-over vase being righted, gentle hands. Symbolic: reconciliation, forgiveness, quiet mending.",
+        8: "Cozy watercolor illustration, playful warm light: a grey Scottish Fold cat stalking a new toy mouse, whiskers forward, paws ready, scattered toys. Symbolic: new joys, hunting instinct, play.",
+        9: "Cozy watercolor illustration, dynamic warm tones: a grey Scottish Fold cat mid-pounce on a carpet, flying fur tufts, dramatic lighting. Symbolic: carpet as battlefield, daily adventures.",
+        10: "Cozy watercolor illustration, golden baking light: a grey Scottish Fold cat sitting by oven warmth, flour dust on nose, pie cooling on rack. Symbolic: patience, baking smells, anticipation.",
+        11: "Cozy watercolor illustration, soft phone-light glow: a grey Scottish Fold cat on lap while human talks on phone, grandmother's voice visualized as warm swirls. Symbolic: wisdom, connection, generations.",
+        12: "Cozy watercolor illustration, mysterious warm shadows: a grey Scottish Fold cat investigating a single lost sock under radiator, flashlight beam. Symbolic: small mysteries, detective work.",
+        13: "Cozy watercolor illustration, fresh spring light: a grey Scottish Fold cat with tufts of shed fur floating like dandelion seeds, green buds on windowsill. Symbolic: renewal, aging, seasonal change.",
+        14: "Cozy watercolor illustration, warm guest-room light: a grey Scottish Fold cat observing from high shelf as guests arrive, setting boundaries with tail position. Symbolic: boundaries, observation, personal space.",
+        15: "Cozy watercolor illustration, blue night glow: a grey Scottish Fold cat on night windowsill, moonlight, silent hunt of dust motes. Symbolic: night, silence, ancient instincts.",
+        16: "Cozy watercolor illustration, warm feeding time: a grey Scottish Fold cat at ceramic bowl, ritual pacing, steam from food. Symbolic: rituals, care, daily rhythms.",
+        17: "Cozy watercolor illustration, golden sunbeam geometry: a grey Scottish Fold cat climbing sunbeam 'ladder' on floor, dust motes as steps. Symbolic: light as architecture, joy in simple things.",
+        18: "Cozy watercolor illustration, crinkly texture focus: a grey Scottish Fold cat ears deep in rustling bag, hope and curiosity. Symbolic: hope, sounds, anticipation.",
+        19: "Cozy watercolor illustration, proud warm portrait: a grey Scottish Fold cat posing for phone camera, human laughter visible. Symbolic: pride, being seen, memory making.",
+        20: "Cozy watercolor illustration, gentle silver touches: a grey Scottish Fold cat with whiskers turning silver, wise eyes, sunbeam halo. Symbolic: aging, wisdom, earned grace.",
+        21: "Cozy watercolor illustration, dreamy surreal soft: a grey Scottish Fold cat sleeping, dream bubbles showing flying mice, endless cream. Symbolic: dreams, subconscious, purrs.",
+        22: "Cozy watercolor illustration, warm keyboard glow: a grey Scottish Fold cat sprawled across laptop keyboard, human working around. Symbolic: throne, territory, modern life.",
+        23: "Cozy watercolor illustration, principled stance: a grey Scottish Fold cat sitting beside empty litter box, dignified refusal. Symbolic: principles, standards, silent protest.",
+        24: "Cozy watercolor illustration, architectural cardboard: a grey Scottish Fold cat in multi-level cardboard castle, king of domain. Symbolic: architecture, creativity, home-making.",
+        25: "Cozy watercolor illustration, red dot chase: a grey Scottish Fold cat in motion blur chasing laser dot, joyful abandon. Symbolic: pursuit, unattainable, living in moment.",
+        26: "Cozy watercolor illustration, transparent reflections: a grey Scottish Fold cat watching human wash windows, seeing doubled world. Symbolic: clarity, perspectives, transparency.",
+        27: "Cozy watercolor illustration, first snow wonder: a grey Scottish Fold cat paw at falling snow through glass, disbelief and delight. Symbolic: first experiences, wonder, seasons.",
+        28: "Cozy watercolor illustration, festive danger beauty: a grey Scottish Fold cat near Christmas tree, ornaments reflecting, tinsel temptation. Symbolic: celebration, danger, curiosity.",
+    }
+    
+    prompt = chapter_prompts.get(number, (
+        "Cozy watercolor children's book illustration, warm pastel colors, soft light, "
+        "no text, no watermark: a grey Scottish Fold cat with folded ears in a warm, calm "
+        f"home scene, gentle philosophical mood. Chapter theme: {theme_title}"
+    ))
+    
     try:
-        prompt = (
-            "Cozy watercolor children's book illustration, warm pastel colors, soft light, "
-            "no text, no watermark: a grey Scottish Fold cat with folded ears in a warm, calm "
-            f"home scene, gentle philosophical mood. Chapter theme: {theme_title}"
-        )
         headers = {"Content-Type": "application/json"}
         if ROUTER_KEY:
             headers["Authorization"] = f"Bearer {ROUTER_KEY}"
@@ -168,8 +202,8 @@ SYSTEM_PROMPT = """Ты — Маркиз, шотландский вислоух�
 Никакого канцелярита и AI-штампов. Простые живые фразы, точные глаголы."""
 
 
-def call_llm(messages, max_tokens=3000, temperature=0.8):
-    """Вызывает Hermes Router API."""
+def call_llm(messages, max_tokens=3000, temperature=0.8, retries=3):
+    """Вызывает Hermes Router API с ретраями при таймаутах/перегрузке."""
     headers = {"Content-Type": "application/json"}
     if ROUTER_KEY:
         headers["Authorization"] = f"Bearer {ROUTER_KEY}"
@@ -179,11 +213,26 @@ def call_llm(messages, max_tokens=3000, temperature=0.8):
         "max_tokens": max_tokens,
         "temperature": temperature,
         "stream": False,
+        "reasoning_format": "hidden",
     }
-    resp = requests.post(ROUTER_URL, headers=headers, json=payload, timeout=240)
-    resp.raise_for_status()
-    data = resp.json()
-    return data["choices"][0]["message"]["content"].strip()
+    last_err = None
+    for attempt in range(retries + 1):
+        try:
+            resp = requests.post(ROUTER_URL, headers=headers, json=payload, timeout=600)
+            if resp.status_code in (408, 409, 429, 502, 503, 504):
+                raise RuntimeError(f"HTTP {resp.status_code}")
+            resp.raise_for_status()
+            data = resp.json()
+            return data["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            last_err = e
+            if attempt < retries:
+                wait = 15 * (attempt + 1)
+                print(f"[LLM] попытка {attempt + 1} не удалась ({e}), повтор через {wait}с...")
+                time.sleep(wait)
+            else:
+                break
+    raise RuntimeError(f"LLM не ответил после {retries + 1} попыток: {last_err}")
 
 
 def load_continuity():
@@ -258,7 +307,7 @@ def generate_draft(number, theme_title):
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
         ],
-        max_tokens=4000,
+        max_tokens=8000,
         temperature=0.85,
     )
 
@@ -292,7 +341,7 @@ def proofread_draft(number, theme_title, draft):
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
         ],
-        max_tokens=5000,
+        max_tokens=8000,
         temperature=0.4,
     )
 
