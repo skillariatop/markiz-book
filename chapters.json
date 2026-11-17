@@ -47,8 +47,16 @@
       "words": 780,
       "readMinutes": 5,
       "illustration": "assets/chapter-06.png"
+    },
+    {
+      "file": "chapters/07.md",
+      "title": "Про ссоры и примирение",
+      "date": "2026-11-17",
+      "words": 1209,
+      "readMinutes": 7,
+      "illustration": "assets/chapter-07.png"
     }
   ],
-  "totalWords": 4516,
-  "totalReadMinutes": 29
+  "totalWords": 5725,
+  "totalReadMinutes": 36
 }
