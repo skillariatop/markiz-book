@@ -61,7 +61,8 @@
       "title": "Про новую игрушечную мышь",
       "date": "2026-11-18",
       "words": 835,
-      "readMinutes": 5
+      "readMinutes": 5,
+      "illustration": "assets/chapter-08.png"
     }
   ],
   "totalWords": 6560,
