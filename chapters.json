@@ -55,8 +55,15 @@
       "words": 1209,
       "readMinutes": 7,
       "illustration": "assets/chapter-07.png"
+    },
+    {
+      "file": "chapters/08.md",
+      "title": "Про новую игрушечную мышь",
+      "date": "2026-11-18",
+      "words": 835,
+      "readMinutes": 5
     }
   ],
-  "totalWords": 5725,
-  "totalReadMinutes": 36
+  "totalWords": 6560,
+  "totalReadMinutes": 41
 }
