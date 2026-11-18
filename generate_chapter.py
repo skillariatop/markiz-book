@@ -118,7 +118,7 @@ def fetch_weather():
         return ""
 
 
-def generate_illustration(number, theme_title):
+def generate_illustration(number, theme_title, retries=2):
     """Генерирует иллюстрацию к главе (image-модель), возвращает путь к PNG."""
     # Специфичные промпты для каждой главы — чтобы иллюстрации были уникальны и символичны
     chapter_prompts = {
@@ -158,31 +158,42 @@ def generate_illustration(number, theme_title):
         f"home scene, gentle philosophical mood. Chapter theme: {theme_title}"
     ))
     
-    try:
-        headers = {"Content-Type": "application/json"}
-        if ROUTER_KEY:
-            headers["Authorization"] = f"Bearer {ROUTER_KEY}"
-        r = requests.post(
-            IMAGES_URL,
-            headers=headers,
-            json={"model": IMAGE_MODEL, "prompt": prompt, "n": 1, "size": "1024x1024"},
-            timeout=540,
-        )
-        r.raise_for_status()
-        item = (r.json().get("data") or [{}])[0]
-        raw = None
-        if "b64_json" in item:
-            raw = base64.b64decode(item["b64_json"])
-        elif item.get("url"):
-            raw = requests.get(item["url"], timeout=120).content
-        if raw:
+    last_err = None
+    for attempt in range(retries + 1):
+        try:
+            headers = {"Content-Type": "application/json"}
+            if ROUTER_KEY:
+                headers["Authorization"] = f"Bearer {ROUTER_KEY}"
+            r = requests.post(
+                IMAGES_URL,
+                headers=headers,
+                json={"model": IMAGE_MODEL, "prompt": prompt, "n": 1, "size": "1024x1024"},
+                timeout=540,
+            )
+            if r.status_code in (408, 429, 502, 503, 504):
+                raise RuntimeError(f"HTTP {r.status_code}")
+            r.raise_for_status()
+            item = (r.json().get("data") or [{}])[0]
+            raw = None
+            if "b64_json" in item:
+                raw = base64.b64decode(item["b64_json"])
+            elif item.get("url"):
+                raw = requests.get(item["url"], timeout=120).content
+            if not raw:
+                raise RuntimeError("пустой ответ (нет b64_json/url)")
             assets = REPO_ROOT / "assets"
             assets.mkdir(parents=True, exist_ok=True)
             img_path = assets / f"chapter-{number:02d}.png"
             img_path.write_bytes(raw)
             return f"assets/chapter-{number:02d}.png"
-    except Exception as e:
-        print(f"[иллюстрация] ошибка: {e}")
+        except Exception as e:
+            last_err = e
+            if attempt < retries:
+                wait = 10 * (attempt + 1)
+                print(f"[иллюстрация] попытка {attempt + 1} не удалась ({e}), повтор через {wait}с...")
+                time.sleep(wait)
+            else:
+                print(f"[иллюстрация] не удалась после {retries + 1} попыток: {e}")
     return None
 
 
