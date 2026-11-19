@@ -63,8 +63,15 @@
       "words": 835,
       "readMinutes": 5,
       "illustration": "assets/chapter-08.png"
+    },
+    {
+      "file": "chapters/09.md",
+      "title": "Про ковёр как поле битвы",
+      "date": "2026-11-19",
+      "words": 1004,
+      "readMinutes": 6
     }
   ],
-  "totalWords": 6560,
-  "totalReadMinutes": 41
+  "totalWords": 7564,
+  "totalReadMinutes": 47
 }
