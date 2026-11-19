@@ -620,8 +620,9 @@
     function renderToc() {
       toc.innerHTML = CHAPTERS.map((ch, i) => {
         const isNew = !isRead(i);
-        return `<li><a href="#ch-${i}" class="${i===currentIndex?'current':''}" data-idx="${i}">
-          <span class="chapter-num">${String(i+1).padStart(2,'0')}</span>
+        const num = i + 1;
+        return `<li><a href="#ch-${num}" class="${i===currentIndex?'current':''}" data-idx="${i}">
+          <span class="chapter-num">${String(num).padStart(2,'0')}</span>
           <span class="chapter-title-text">${escapeHtml(ch.title)}</span>
           ${isNew ? '<span class="new-badge">новая</span>' : ''}
         </a></li>`;
@@ -694,9 +695,10 @@
     }
 
     function updateNav() {
-      prevLink.href = `#ch-${currentIndex-1}`;
+      const num = currentIndex + 1;
+      prevLink.href = `#ch-${num - 1}`;
       prevLink.disabled = currentIndex === 0;
-      nextLink.href = `#ch-${currentIndex+1}`;
+      nextLink.href = `#ch-${num + 1}`;
       nextLink.disabled = currentIndex === CHAPTERS.length - 1;
       prevLink.onclick = e => { if(currentIndex>0){e.preventDefault();loadChapter(currentIndex-1);} };
       nextLink.onclick = e => { if(currentIndex<CHAPTERS.length-1){e.preventDefault();loadChapter(currentIndex+1);} };
@@ -721,6 +723,26 @@
 
     // Init
     loadManifest();
+
+    // Handle direct links like #ch-8 (1-based)
+    function loadFromHash() {
+      const hash = window.location.hash;
+      const match = hash.match(/^#ch-(\d+)$/);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        const idx = num - 1;
+        if (idx >= 0 && idx < CHAPTERS.length) {
+          loadChapter(idx);
+        }
+      }
+    }
+    window.addEventListener('hashchange', loadFromHash);
+    // Also check on initial load (after manifest loads)
+    const originalLoadManifest = loadManifest;
+    loadManifest = async function() {
+      await originalLoadManifest();
+      loadFromHash();
+    };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked@14/marked.min.js"></script>
 </body>
