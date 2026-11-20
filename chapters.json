@@ -71,8 +71,15 @@
       "words": 1004,
       "readMinutes": 6,
       "illustration": "assets/chapter-09.png"
+    },
+    {
+      "file": "chapters/10.md",
+      "title": "Про запах выпечки и терпение",
+      "date": "2026-11-20",
+      "words": 680,
+      "readMinutes": 4
     }
   ],
-  "totalWords": 7564,
-  "totalReadMinutes": 47
+  "totalWords": 8244,
+  "totalReadMinutes": 51
 }
