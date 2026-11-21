@@ -26,6 +26,7 @@ CONTINUITY_FILE = REPO_ROOT / "continuity.md"
 
 # Hermes Router API
 ROUTER_URL = "http://127.0.0.2:4000/v1/chat/completions"
+IMAGES_URL = "http://127.0.0.1:4000/v1/images/generations"
 MODEL = "modelscope/deepseek-v4-pro"
 ROUTER_KEY = os.environ.get("HERMES_CUSTOM_127_0_0_1_4000_API_KEY", "")
 
@@ -67,7 +68,6 @@ CHAPTER_THEMES = [
 # Реальный контекст дня (Краснодар)
 KRASNODAR_LAT, KRASNODAR_LON = 45.0355, 38.9753
 WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
-IMAGES_URL = "http://127.0.0.1:4000/v1/images/generations"
 WEEKDAYS = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
 WEATHER_CODES = {
     0: "ясно", 1: "малооблачно", 2: "переменная облачность", 3: "пасмурно",
@@ -117,18 +117,10 @@ def fetch_weather():
         return ""
 
 
-# Доступные image-модели через роутер (в порядке приоритета)
-IMAGE_MODELS = [
-    "modelscope/qwen-image-2512",
-    "modelscope/qwen-image",
-    "modelscope/z-image",
-    "modelscope/z-image-turbo",
-]
-
-
 def generate_illustration(number, theme_title, retries=2):
     """Генерирует иллюстрацию к главе (image-модель), возвращает путь к PNG.
-    Пробует модели по очереди: retries попыток на каждой, потом следующая.
+    Указываем базовую модель — AI API сам сделает фоллбеки на настроенные альтернативы.
+    Делаем ретраи при временных ошибках (429, 5xx, таймауты).
     """
     # Специфичные промпты для каждой главы — чтобы иллюстрации были уникальны и символичны
     chapter_prompts = {
@@ -172,46 +164,43 @@ def generate_illustration(number, theme_title, retries=2):
     if ROUTER_KEY:
         headers["Authorization"] = f"Bearer {ROUTER_KEY}"
 
+    # Базовая модель — API сам переключит на доступные фоллбеки
+    DEFAULT_IMAGE_MODEL = "huggingface/flux-schnell"
+
     last_err = None
-    for model_idx, model in enumerate(IMAGE_MODELS):
-        for attempt in range(retries + 1):
-            try:
-                r = requests.post(
-                    IMAGES_URL,
-                    headers=headers,
-                    json={"model": model, "prompt": prompt, "n": 1, "size": "1024x1024"},
-                    timeout=540,
-                )
-                if r.status_code in (408, 429, 500, 502, 503, 504):
-                    raise RuntimeError(f"HTTP {r.status_code}")
-                r.raise_for_status()
-                item = (r.json().get("data") or [{}])[0]
-                raw = None
-                if "b64_json" in item:
-                    raw = base64.b64decode(item["b64_json"])
-                elif item.get("url"):
-                    raw = requests.get(item["url"], timeout=120).content
-                if not raw:
-                    raise RuntimeError("пустой ответ (нет b64_json/url)")
-                assets = REPO_ROOT / "assets"
-                assets.mkdir(parents=True, exist_ok=True)
-                img_path = assets / f"chapter-{number:02d}.png"
-                img_path.write_bytes(raw)
-                print(f"[иллюстрация] успех на модели {model}")
-                return f"assets/chapter-{number:02d}.png"
-            except Exception as e:
-                last_err = e
-                if attempt < retries:
-                    wait = 10 * (attempt + 1)
-                    print(f"[иллюстрация] {model} попытка {attempt + 1} не удалась ({e}), повтор через {wait}с...")
-                    time.sleep(wait)
-                else:
-                    print(f"[иллюстрация] {model} не удалась после {retries + 1} попыток: {e}")
-        # Эта модель исчерпала ретраи — пробуем следующую
-        if model_idx < len(IMAGE_MODELS) - 1:
-            print(f"[иллюстрация] переключаюсь на следующую модель: {IMAGE_MODELS[model_idx + 1]}")
-            time.sleep(5)
-    print(f"[иллюстрация] все модели исчерпаны, последняя ошибка: {last_err}")
+    for attempt in range(retries + 1):
+        try:
+            r = requests.post(
+                IMAGES_URL,
+                headers=headers,
+                json={"model": DEFAULT_IMAGE_MODEL, "prompt": prompt, "n": 1, "size": "1024x1024"},
+                timeout=540,
+            )
+            if r.status_code in (408, 429, 500, 502, 503, 504):
+                raise RuntimeError(f"HTTP {r.status_code}")
+            r.raise_for_status()
+            item = (r.json().get("data") or [{}])[0]
+            raw = None
+            if "b64_json" in item:
+                raw = base64.b64decode(item["b64_json"])
+            elif item.get("url"):
+                raw = requests.get(item["url"], timeout=120).content
+            if not raw:
+                raise RuntimeError("пустой ответ (нет b64_json/url)")
+            assets = REPO_ROOT / "assets"
+            assets.mkdir(parents=True, exist_ok=True)
+            img_path = assets / f"chapter-{number:02d}.png"
+            img_path.write_bytes(raw)
+            print(f"[иллюстрация] успех")
+            return f"assets/chapter-{number:02d}.png"
+        except Exception as e:
+            last_err = e
+            if attempt < retries:
+                wait = 10 * (attempt + 1)
+                print(f"[иллюстрация] попытка {attempt + 1} не удалась ({e}), повтор через {wait}с...")
+                time.sleep(wait)
+            else:
+                print(f"[иллюстрация] не удалась после {retries + 1} попыток: {e}")
     return None
 
 
