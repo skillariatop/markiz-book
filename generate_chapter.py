@@ -449,6 +449,8 @@ def main():
     os.system(f'git commit -m "feat: глава {next_num} — {theme_title}"')
     os.system("git push")
     print("Запушено в GitHub")
+    pub_url = f"https://skillariatop.github.io/markiz-book/#ch-{next_num}"
+    print(f"🔗 Публикация: {pub_url}")
 
 
 if __name__ == "__main__":
