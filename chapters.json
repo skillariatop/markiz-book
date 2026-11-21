@@ -1,86 +1,94 @@
 {
-    "chapters": [
-        {
-            "file": "chapters/01.md",
-            "title": "Про пробуждение и утренний ритуал",
-            "date": "2026-11-15",
-            "words": 863,
-            "readMinutes": 5,
-            "illustration": "assets/chapter-01.png"
-        },
-        {
-            "file": "chapters/02.md",
-            "title": "Про коробки и невидимые границы",
-            "date": "2026-11-15",
-            "words": 632,
-            "readMinutes": 4,
-            "illustration": "assets/chapter-02.png"
-        },
-        {
-            "file": "chapters/03.md",
-            "title": "Про птиц за окном и справедливость",
-            "date": "2026-11-15",
-            "words": 768,
-            "readMinutes": 5,
-            "illustration": "assets/chapter-03.png"
-        },
-        {
-            "file": "chapters/04.md",
-            "title": "Про ветеринара и достоинство",
-            "date": "2026-11-15",
-            "words": 722,
-            "readMinutes": 5,
-            "illustration": "assets/chapter-04.png"
-        },
-        {
-            "file": "chapters/05.md",
-            "title": "Про детские рисунки на холодильнике",
-            "date": "2026-11-15",
-            "words": 751,
-            "readMinutes": 5,
-            "illustration": "assets/chapter-05.png"
-        },
-        {
-            "file": "chapters/06.md",
-            "title": "Про дождь и уют",
-            "date": "2026-11-16",
-            "words": 780,
-            "readMinutes": 5,
-            "illustration": "assets/chapter-06.png"
-        },
-        {
-            "file": "chapters/07.md",
-            "title": "Про ссоры и примирение",
-            "date": "2026-11-17",
-            "words": 1209,
-            "readMinutes": 7,
-            "illustration": "assets/chapter-07.png"
-        },
-        {
-            "file": "chapters/08.md",
-            "title": "Про новую игрушечную мышь",
-            "date": "2026-11-18",
-            "words": 835,
-            "readMinutes": 5,
-            "illustration": "assets/chapter-08.png"
-        },
-        {
-            "file": "chapters/09.md",
-            "title": "Про ковёр как поле битвы",
-            "date": "2026-11-19",
-            "words": 1004,
-            "readMinutes": 6,
-            "illustration": "assets/chapter-09.png"
-        },
-        {
-            "file": "chapters/10.md",
-            "title": "Про запах выпечки и терпение",
-            "date": "2026-11-20",
-            "words": 957,
-            "readMinutes": 5,
-            "illustration": "assets/chapter-10.png"
-        }
-    ],
-    "totalWords": 8521,
-    "totalReadMinutes": 52
+  "chapters": [
+    {
+      "file": "chapters/01.md",
+      "title": "Про пробуждение и утренний ритуал",
+      "date": "2026-11-15",
+      "words": 863,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-01.png"
+    },
+    {
+      "file": "chapters/02.md",
+      "title": "Про коробки и невидимые границы",
+      "date": "2026-11-15",
+      "words": 632,
+      "readMinutes": 4,
+      "illustration": "assets/chapter-02.png"
+    },
+    {
+      "file": "chapters/03.md",
+      "title": "Про птиц за окном и справедливость",
+      "date": "2026-11-15",
+      "words": 768,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-03.png"
+    },
+    {
+      "file": "chapters/04.md",
+      "title": "Про ветеринара и достоинство",
+      "date": "2026-11-15",
+      "words": 722,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-04.png"
+    },
+    {
+      "file": "chapters/05.md",
+      "title": "Про детские рисунки на холодильнике",
+      "date": "2026-11-15",
+      "words": 751,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-05.png"
+    },
+    {
+      "file": "chapters/06.md",
+      "title": "Про дождь и уют",
+      "date": "2026-11-16",
+      "words": 780,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-06.png"
+    },
+    {
+      "file": "chapters/07.md",
+      "title": "Про ссоры и примирение",
+      "date": "2026-11-17",
+      "words": 1209,
+      "readMinutes": 7,
+      "illustration": "assets/chapter-07.png"
+    },
+    {
+      "file": "chapters/08.md",
+      "title": "Про новую игрушечную мышь",
+      "date": "2026-11-18",
+      "words": 835,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-08.png"
+    },
+    {
+      "file": "chapters/09.md",
+      "title": "Про ковёр как поле битвы",
+      "date": "2026-11-19",
+      "words": 1004,
+      "readMinutes": 6,
+      "illustration": "assets/chapter-09.png"
+    },
+    {
+      "file": "chapters/10.md",
+      "title": "Про запах выпечки и терпение",
+      "date": "2026-11-20",
+      "words": 957,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-10.png"
+    },
+    {
+      "file": "chapters/11.md",
+      "title": "Про звонки бабушки и мудрость",
+      "date": "2026-11-21",
+      "words": 881,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-11.png"
+    }
+  ],
+  "totalWords": 9402,
+  "totalReadMinutes": 57
 }
