@@ -450,7 +450,7 @@ def main():
     os.system("git push")
     print("Запушено в GitHub")
     pub_url = f"https://skillariatop.github.io/markiz-book/#ch-{next_num}"
-    print(f"🔗 Публикация: {pub_url}")
+    print(f"🔗 Публикация: [глава {next_num}]({pub_url})")
 
 
 if __name__ == "__main__":
