@@ -87,8 +87,16 @@
       "words": 881,
       "readMinutes": 5,
       "illustration": "assets/chapter-11.png"
+    },
+    {
+      "file": "chapters/12.md",
+      "title": "Про потерянный носок и маленькое расследование",
+      "date": "2026-11-22",
+      "words": 1167,
+      "readMinutes": 7,
+      "illustration": "assets/chapter-12.png"
     }
   ],
-  "totalWords": 9402,
-  "totalReadMinutes": 57
+  "totalWords": 10569,
+  "totalReadMinutes": 64
 }
