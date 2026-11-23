@@ -95,8 +95,16 @@
       "words": 524,
       "readMinutes": 3,
       "illustration": "assets/chapter-12.png"
+    },
+    {
+      "file": "chapters/13.md",
+      "title": "Про весеннюю линьку и обновление",
+      "date": "2026-11-23",
+      "words": 758,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-13.png"
     }
   ],
-  "totalWords": 6241,
-  "totalReadMinutes": 31
+  "totalWords": 6999,
+  "totalReadMinutes": 36
 }
