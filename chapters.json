@@ -103,8 +103,16 @@
       "words": 758,
       "readMinutes": 5,
       "illustration": "assets/chapter-13.png"
+    },
+    {
+      "file": "chapters/14.md",
+      "title": "Про гостей и личные границы",
+      "date": "2026-11-24",
+      "words": 775,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-14.png"
     }
   ],
-  "totalWords": 6999,
-  "totalReadMinutes": 36
+  "totalWords": 7774,
+  "totalReadMinutes": 41
 }
