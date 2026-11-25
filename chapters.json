@@ -111,8 +111,16 @@
       "words": 775,
       "readMinutes": 5,
       "illustration": "assets/chapter-14.png"
+    },
+    {
+      "file": "chapters/15.md",
+      "title": "Про ночную охоту и тишину",
+      "date": "2026-11-25",
+      "words": 946,
+      "readMinutes": 6,
+      "illustration": "assets/chapter-15.png"
     }
   ],
-  "totalWords": 7774,
-  "totalReadMinutes": 41
+  "totalWords": 8720,
+  "totalReadMinutes": 47
 }
