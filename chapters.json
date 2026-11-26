@@ -119,8 +119,16 @@
       "words": 946,
       "readMinutes": 6,
       "illustration": "assets/chapter-15.png"
+    },
+    {
+      "file": "chapters/16.md",
+      "title": "Про кормление и ритуалы",
+      "date": "2026-11-26",
+      "words": 862,
+      "readMinutes": 5,
+      "illustration": "assets/chapter-16.png"
     }
   ],
-  "totalWords": 8720,
-  "totalReadMinutes": 47
+  "totalWords": 9582,
+  "totalReadMinutes": 52
 }
