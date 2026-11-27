@@ -127,8 +127,16 @@
       "words": 862,
       "readMinutes": 5,
       "illustration": "assets/chapter-16.png"
+    },
+    {
+      "file": "chapters/17.md",
+      "title": "Про лучи солнца как лестницы",
+      "date": "2026-11-27",
+      "words": 975,
+      "readMinutes": 6,
+      "illustration": "assets/chapter-17.png"
     }
   ],
-  "totalWords": 9582,
-  "totalReadMinutes": 52
+  "totalWords": 10557,
+  "totalReadMinutes": 58
 }
