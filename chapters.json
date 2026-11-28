@@ -135,8 +135,16 @@
       "words": 975,
       "readMinutes": 6,
       "illustration": "assets/chapter-17.png"
+    },
+    {
+      "file": "chapters/18.md",
+      "title": "Про шуршание пакетов и надежду",
+      "date": "2026-11-28",
+      "words": 1084,
+      "readMinutes": 7,
+      "illustration": "assets/chapter-18.png"
     }
   ],
-  "totalWords": 10557,
-  "totalReadMinutes": 58
+  "totalWords": 11641,
+  "totalReadMinutes": 65
 }
